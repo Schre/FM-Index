@@ -1,3 +1,6 @@
+/*
+ * Written by Samuel Schreiber <samuelschreiber96@gmail.com>, May 2019
+ */
 import java.util.*;
 
 public class BWT {
