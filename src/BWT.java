@@ -91,25 +91,20 @@ public class BWT {
 
 
          // Initialize data structures needed for computing occ and count
-        for (int i = 0; i < ret.size(); ++i) {
-            String lst = "";
-            for (int j = 0; j < ret.get(i).length(); ++j) {
 
-                Character c = ret.get(i).charAt(j);
+         int rowLength = ret.get(0).length();
+         for (int i = 0; i < ret.size(); ++i)  {
+            Character c = ret.get(i).charAt(rowLength-1);
+            // At last column in BWT matrix
+            // record last character at row i's count
+            tempCounts.putIfAbsent(c,0);
+            countMap.putIfAbsent(c, new TreeMap<>());
+            countMap.get(c).put(i, tempCounts.get(c));
+            tempCounts.put(c, tempCounts.get(c) + 1); // increment count
 
-                // At last column in BWT matrix
-                if (j == ret.get(i).length() - 1) {
-                    // record last character at row i's count
-                    tempCounts.putIfAbsent(c,0);
-                    countMap.putIfAbsent(c, new TreeMap<>());
-                    countMap.get(c).put(i, tempCounts.get(c));
-                    tempCounts.put(c, tempCounts.get(c) + 1); // increment count
-
-                    // Set max value to the current row's count value plus 1 (because we use the ceiling function in checkIfPatternMatches)
-                    countMap.get(c).put(Integer.MAX_VALUE, countMap.get(c).get(i) + 1);
-                }
-                alpha_set.add(c);
-            }
+            // Set max value to the current row's count value plus 1 (because we use the ceiling function in checkIfPatternMatches)
+            countMap.get(c).put(Integer.MAX_VALUE, countMap.get(c).get(i) + 1);
+            alpha_set.add(c);
         }
 
         // initialize the alphabet list and mappings based on our alpha_set
