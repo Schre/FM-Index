@@ -34,7 +34,7 @@ public class BWT {
 
         int indx = alphabetMappings.get(c) - 1; // previous char in lexicographical order
 
-        for (; indx >= 0; --indx) { // add up all chars less than
+        for (; indx >= 0; --indx) { // add up all chars less than c in lexicographical order
             occ += freq.get(alphabet.get(indx));
         }
 
@@ -42,6 +42,7 @@ public class BWT {
     }
 
     private void createAlphabet(Set<Character> set) {
+        // convert set to list sorted lexicographically, then map each character to their corresponding index in the list
         for (Character c : set) {
             alphabet.add(c);
         }
@@ -53,12 +54,13 @@ public class BWT {
     }
 
     public BWT(String s) {
-        buildBWT(s + "$"); // build BMT to derive LF mappings and occ
+        buildBWT(s + "$"); // build BMT to derive count mappings and occ
         bwtLength = s.length();
     }
 
      private List<String> buildBWT(String s) {
 
+        // First record the frequencies of each character (useful for occ calculation)
         for (int i = 0; i < s.length(); ++i) {
             Character c = s.charAt(i);
             freq.putIfAbsent(c,0);
@@ -71,6 +73,7 @@ public class BWT {
          Map<Character, Integer> tempCounts = new HashMap<>();
 
 
+         // Construct the BWT matrix (The matrix on the whiteboard)
          for (int i = 0; i < s.length(); ++i) {
              String lst = "";
              for (int j = i; j < s.length() + i; ++j) {
@@ -84,26 +87,29 @@ public class BWT {
          Collections.sort(ret);
 
 
+         // Initialize data structures needed for computing occ and count
         for (int i = 0; i < ret.size(); ++i) {
             String lst = "";
             for (int j = 0; j < ret.get(i).length(); ++j) {
 
                 Character c = ret.get(i).charAt(j);
+
+                // At last column in BWT matrix
                 if (j == ret.get(i).length() - 1) {
                     // record last character at row i's count
                     tempCounts.putIfAbsent(c,0);
-
                     countMap.putIfAbsent(c, new TreeMap<>());
                     countMap.get(c).put(i, tempCounts.get(c));
                     tempCounts.put(c, tempCounts.get(c) + 1); // increment count
 
+                    // Set max value to the current row's count value plus 1 (because we use the ceiling function in checkIfPatternMatches)
                     countMap.get(c).put(Integer.MAX_VALUE, countMap.get(c).get(i) + 1);
                 }
-
                 alpha_set.add(c);
             }
         }
 
+        // initialize the alphabet list and mappings based on our alpha_set
         createAlphabet(alpha_set);
         return ret;
     }
